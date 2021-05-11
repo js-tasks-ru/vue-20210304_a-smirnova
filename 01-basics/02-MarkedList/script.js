@@ -1,4 +1,4 @@
-// import Vue from './vendor/vue.esm.browser.js';
+import Vue from './vendor/vue.esm.browser.js';
 
 // From https://jsonplaceholder.typicode.com/comments
 /*
@@ -31,4 +31,37 @@ const emails = [
 ];
 */
 
-// new Vue();
+new Vue({
+  el: '#app',
+  data() {
+    return {
+      rawItems: null,
+      search: null,
+      isLoad: false,
+    };
+  },
+
+  computed: {
+    items() {
+      return this.rawItems.map((item) => ({
+        ...item,
+        isMarked: item.email.indexOf(this.search) >= 0 && this.search !== '',
+      }));
+    },
+  },
+
+  mounted() {
+    this.getList();
+  },
+
+  methods: {
+    getList() {
+      fetch('https://jsonplaceholder.typicode.com/comments')
+        .then(response => response.json())
+        .then(json => {
+          this.rawItems = json;
+          this.isLoad = true;
+        });
+    },
+  },
+});

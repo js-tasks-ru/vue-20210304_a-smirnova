@@ -1,3 +1,14 @@
-// import Vue from './vendor/vue.esm.browser.js';
+import Vue from './vendor/vue.esm.browser.js';
 
-// new Vue();
+new Vue({
+  el: '#counterBtn',
+  data: {
+    count: 0,
+  },
+
+  methods: {
+    addCount() {
+      this.count++;
+    },
+  },
+});

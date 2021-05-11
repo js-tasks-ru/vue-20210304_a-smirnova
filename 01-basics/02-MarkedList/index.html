@@ -12,14 +12,12 @@
 <body>
 
 <div id="app">
-  <input type="text" />
-  <ul>
-    <li>Email</li>
-    <li class="marked">Email</li>
-    <li class="marked">Email</li>
-    <li>Email</li>
-    <li>Email</li>
-    <li>...</li>
+  <input type="text" v-model="search"/>
+  <ul v-if="isLoad">
+    <li
+      v-for="(item, index) in items"
+      :key="index"
+      :class="{ marked: item.isMarked }">{{ item.email }}</li>
   </ul>
 </div>
 
