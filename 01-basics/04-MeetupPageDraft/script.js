@@ -16,9 +16,9 @@ function getImageUrlByImageId(imageId) {
 }
 
 /**
- * Функция, возвращающая словарь заголовков по умолчанию для всех типов пунктов программы
+ * Словарь заголовков по умолчанию для всех типов пунктов программы
  */
-const getAgendaItemDefaultTitles = () => ({
+const agendaItemDefaultTitles = {
   registration: 'Регистрация',
   opening: 'Открытие',
   break: 'Перерыв',
@@ -27,13 +27,13 @@ const getAgendaItemDefaultTitles = () => ({
   afterparty: 'Afterparty',
   talk: 'Доклад',
   other: 'Другое',
-});
+};
 
 /**
- * Функция, возвращая словарь иконок для для всех типов пунктов программы.
+ * Словарь иконок для для всех типов пунктов программы.
  * Соответствует имени иконок в директории /assets/icons
  */
-const getAgendaItemIcons = () => ({
+const agendaItemIcons = {
   registration: 'key',
   opening: 'cal-sm',
   talk: 'tv',
@@ -42,6 +42,56 @@ const getAgendaItemIcons = () => ({
   closing: 'key',
   afterparty: 'cal-sm',
   other: 'cal-sm',
-});
+};
 
-new Vue();
+export const app = new Vue({
+  data() {
+    return {
+      rawMeetup: null,
+    };
+  },
+
+  computed: {
+    meetup() {
+      // Требуется помнить о том, что изначально митапа может не быть.
+      // В этом случае и вычисляемый митап - это null.
+      if (this.rawMeetup === null) {
+        return null;
+      }
+
+      return {
+        ...this.rawMeetup,
+
+        cover: this.rawMeetup.imageId ? getImageUrlByImageId(this.rawMeetup.imageId) : undefined,
+
+        date: new Date(this.rawMeetup.date),
+
+        localeDate: new Date(this.rawMeetup.date).toLocaleString(navigator.language, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+
+        dateOnlyString: new Date(this.rawMeetup.date).toISOString().substr(0, 10),
+
+        agenda: this.rawMeetup.agenda.map((agendaItem) => ({
+          ...agendaItem,
+          icon: `icon-${agendaItemIcons[agendaItem.type]}.svg`,
+          title: agendaItem.title || agendaItemDefaultTitles[agendaItem.type],
+        })),
+      };
+    },
+  },
+
+  mounted() {
+    this.fetchMeetup();
+  },
+
+  methods: {
+    fetchMeetup() {
+      return fetch(`${API_URL}/meetups/${MEETUP_ID}`)
+        .then((res) => res.json())
+        .then((meetup) => (this.rawMeetup = meetup));
+    },
+  },
+}).$mount('#app');
